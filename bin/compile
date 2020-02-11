@@ -2,9 +2,14 @@
 # bin/compile BUILD_DIR CACHE_DIR ENV_DIR
 
 BUILD_DIR=$1
+CACHE_DIR=${2:-}
+ENV_DIR=${3:-}
+
+BP_DIR=$(cd "$(dirname "${0:-}")"; cd ..; pwd)
 
 echo "-----> preserving the node_modules directory"
 echo "Build Dir ${BUILD_DIR}"
+echo "BP_DIR ${BP_DIR}"
 which node
 which mjml
 mv $BUILD_DIR/node_modules /app/.heroku/
