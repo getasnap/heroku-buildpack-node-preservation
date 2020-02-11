@@ -6,6 +6,7 @@ BUILD_DIR=$1
 echo "-----> preserving the node_modules directory"
 echo "Build Dir ${BUILD_DIR}"
 ls -al $BUILD_DIR/node_modules
+ls -al /app
 which node
 which mjml
 ln -s $BUILD_DIR/node_modules /app/.heroku/node_modules
