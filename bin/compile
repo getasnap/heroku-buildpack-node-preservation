@@ -10,14 +10,57 @@ BP_DIR=$(cd "$(dirname "${0:-}")"; cd ..; pwd)
 echo "Build Dir ${BUILD_DIR}"
 echo "BP_DIR ${BP_DIR}"
 echo "HOME ${HOME}"
-which node
-which mjml
+
+export_env_dir() {
+  local env_dir=$1
+  if [ -d "$env_dir" ]; then
+    local whitelist_regex=${2:-''}
+    local blacklist_regex=${3:-'^(PATH|GIT_DIR|CPATH|CPPATH|LD_PRELOAD|LIBRARY_PATH|LANG|BUILD_DIR)$'}
+    # shellcheck disable=SC2164
+    pushd "$env_dir" >/dev/null
+    for e in *; do
+      [ -e "$e" ] || continue
+      echo "$e" | grep -E "$whitelist_regex" | grep -qvE "$blacklist_regex" &&
+      export "$e=$(cat "$e")"
+      :
+    done
+    # shellcheck disable=SC2164
+    popd >/dev/null
+  fi
+}
+
+write_export() {
+  local bp_dir="$1"
+  local build_dir="$2"
+
+  # only write the export script if the buildpack directory is writable.
+  # this may occur in situations outside of Heroku, such as running the
+  # buildpacks locally.
+  if [ -w "$bp_dir" ]; then
+	echo "Writing Export File in $bp_dir"
+    echo "export PATH=\"$build_dir/.heroku/node/bin:$build_dir/.heroku/yarn/bin:\$PATH:$build_dir/node_modules/.bin\"" > "$bp_dir/export"
+    echo "export NODE_HOME=\"$build_dir/.heroku/node\"" >> "$bp_dir/export"
+  else
+	  echo "bp_dir not Writeable - no export file possible"
+  fi
+}
+
+write_profile() {
+  local bp_dir="$1"
+  local build_dir="$2"
+  mkdir -p "$build_dir/.profile.d"
+  cp "$bp_dir"/profile/* "$build_dir/.profile.d/"
+}
+
+create_env() {
+  write_profile "$BP_DIR" "$BUILD_DIR"
+  write_export "$BP_DIR" "$BUILD_DIR"
+  export_env_dir "$ENV_DIR"
+}
 
 # Setting environment variables for export
 echo "-----> Preserving Node Environment Variables"
-echo "export PATH=\"$HOME/.heroku/node/bin:$HOME/.heroku/yarn/bin:\$PATH:$HOME/node_modules/.bin\"" > "$BP_DIR/export"
-
-more "$BP_DIR"/export
-
+cd "$BUILD_DIR"
+create_env
 echo "-----> Done"
 exit 0
