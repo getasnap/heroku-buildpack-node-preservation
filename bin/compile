@@ -15,13 +15,9 @@ which mjml
 
 # Setting environment variables for export
 echo "-----> Preserving Node Environment Variables"
-cat <<EOF >"${BP_DIR}/export"
-export PATH=$PATH:$HOME/.heroku/node/bin:$HOME/node_modules/.bin/
-EOF
+echo "export PATH=\"$HOME/.heroku/node/bin:$HOME/.heroku/yarn/bin:\$PATH:$HOME/node_modules/.bin\"" > "$BP_DIR/export"
 
 more "$BP_DIR"/export
 
 echo "-----> Done"
 exit 0
-
-echo "-----> Node Environment Preserved"
