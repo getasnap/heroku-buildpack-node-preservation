@@ -13,15 +13,13 @@ echo "HOME ${HOME}"
 which node
 which mjml
 
-# Setting environment variables in .profile.d script (sourced at dyno startup)
+# Setting environment variables for export
 echo "-----> Preserving Node Environment Variables"
-mkdir -p "$BUILD_DIR"/.profile.d
-cat <<EOF >"$BUILD_DIR"/.profile.d/heroku-buildpack-node-preservation.sh
-PATH=$PATH:$HOME/.heroku/node/bin:$HOME/node_modules/.bin/
+cat <<EOF >"${BP_DIR}/export"
+export PATH=$PATH:$HOME/.heroku/node/bin:$HOME/node_modules/.bin/
 EOF
 
-ls -al "$BUILD_DIR"/.profile.d
-more "$BUILD_DIR"/.profile.d/heroku-buildpack-node-preservation.sh
+more "$BP_DIR"/export
 
 echo "-----> Done"
 exit 0
